@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090910">
+  <meta name="description" content="NEON CITY - 今日の時間を見える化する生活プランナー">
+  <title>NEON CITY</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">YOUR DAILY LIFE PLANNER</div>
+        <h1>NEON <span>CITY</span><i class="spark">✦</i></h1>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="設定">⚙</button>
+    </header>
+
+    <main>
+      <section class="hero neon-cyan">
+        <div class="hero-top">
+          <span class="eyebrow">FREE TIME UNTIL BEDTIME</span>
+          <span class="live-dot">● TODAY</span>
+        </div>
+        <div class="big-time" id="freeTime">--h --m</div>
+        <div class="hero-foot">
+          <span>就寝目標 <strong id="bedtimeLabel">24:00</strong></span>
+          <span id="remainingLabel">残り時間を計算中</span>
+        </div>
+        <div class="progress-track"><div id="timeProgress"></div></div>
+      </section>
+
+      <section class="section-head">
+        <div>
+          <div class="eyebrow">BUILD YOUR EVENING</div>
+          <h2>今日のカード <span class="count" id="taskCount">0</span></h2>
+        </div>
+        <button class="text-btn" id="addTaskBtn">＋ 追加</button>
+      </section>
+
+      <section class="card-tray" id="cardTray" aria-label="タスクカード">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-symbol">龍</div>
+          <strong>今夜の予定をつくろう</strong>
+          <p>タスクやお風呂、バッファをカードで追加してね。</p>
+        </div>
+      </section>
+
+      <div class="action-row">
+        <button class="primary-btn" id="buildBtn">✦ タイムラインを組む</button>
+        <button class="secondary-btn" id="suggestBtn">AIおすすめ <small>準備中</small></button>
+      </div>
+
+      <section class="timeline-section">
+        <div class="section-head timeline-heading">
+          <div>
+            <div class="eyebrow">THE FLOW OF TIME</div>
+            <h2>Tonight's Timeline</h2>
+          </div>
+          <span class="date-pill" id="todayLabel"></span>
+        </div>
+        <div class="timeline-card" id="timeline">
+          <div class="timeline-empty">カードを並べて「タイムラインを組む」を押すと、ここに一日の流れが表示されるよ。</div>
+        </div>
+      </section>
+
+      <section class="section-head goals-head">
+        <div>
+          <div class="eyebrow">SOMEDAY, LITTLE BY LITTLE</div>
+          <h2>やりたいこと</h2>
+        </div>
+        <button class="text-btn" id="addGoalBtn">＋ 目標</button>
+      </section>
+      <section class="goal-preview" id="goalPreview">
+        <p class="muted">長期目標はノルマにせず、やりたいときに少しずつ。</p>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <span class="nav-active">◈ 今日</span>
+      <span>◇ やりたいこと</span>
+      <span>☾ 記録</span>
+    </nav>
+  </div>
+
+  <dialog id="taskDialog">
+    <form method="dialog" id="taskForm">
+      <div class="dialog-head"><div><div class="eyebrow">NEW TASK CARD</div><h3>カードを追加</h3></div><button class="close-btn" value="cancel" aria-label="閉じる">×</button></div>
+      <label>カード名<input id="taskName" required maxlength="40" placeholder="例：夕食、洗濯、英語"></label>
+      <div class="form-grid">
+        <label>所要時間（分）<input id="taskDuration" type="number" min="1" max="600" value="30" required></label>
+        <label>カードの種類<select id="taskType"><option value="daily">日常タスク</option><option value="life">生活習慣</option><option value="buffer">バッファ</option><option value="free">自由時間</option><option value="goal">長期目標</option></select></label>
+      </div>
+      <label class="check-label"><input id="taskFixed" type="checkbox"> 開始時刻を指定する</label>
+      <label id="fixedTimeWrap" class="hidden">開始時刻<input id="taskStart" type="time" value="20:00"></label>
+      <div class="dialog-actions"><button class="secondary-btn" value="cancel">キャンセル</button><button class="primary-btn" id="saveTaskBtn" value="default">追加する</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog">
+    <form method="dialog" id="settingsForm">
+      <div class="dialog-head"><div><div class="eyebrow">YOUR DAILY RHYTHM</div><h3>生活時間の設定</h3></div><button class="close-btn" value="cancel">×</button></div>
+      <label>普段の帰宅・自由時間開始<input id="dayStart" type="time" value="19:30"></label>
+      <label>基本の就寝時刻<input id="bedtime" type="time" value="00:00"></label>
+      <p class="muted small">特別な日には、その日だけの就寝時刻に変更できるようにする予定です。</p>
+      <div class="dialog-actions"><button class="secondary-btn" value="cancel">閉じる</button><button class="primary-btn" id="saveSettingsBtn" value="default">保存</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="goalDialog">
+    <form method="dialog" id="goalForm">
+      <div class="dialog-head"><div><div class="eyebrow">LITTLE BY LITTLE</div><h3>やりたいことを追加</h3></div><button class="close-btn" value="cancel">×</button></div>
+      <label>目標<input id="goalName" required maxlength="60" placeholder="例：英語を話せるようになりたい"></label>
+      <label>最初の小さな一歩（任意）<input id="goalStep" maxlength="60" placeholder="例：単語を5個覚える"></label>
+      <div class="dialog-actions"><button class="secondary-btn" value="cancel">キャンセル</button><button class="primary-btn" id="saveGoalBtn" value="default">保存</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
