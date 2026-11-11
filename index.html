@@ -1,125 +1,52 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#090910">
-  <meta name="description" content="NEON CITY - 今日の時間を見える化する生活プランナー">
-  <title>NEON CITY</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">YOUR DAILY LIFE PLANNER</div>
-        <h1>NEON <span>CITY</span><i class="spark">✦</i></h1>
-      </div>
-      <button class="icon-btn" id="settingsBtn" aria-label="設定">⚙</button>
-    </header>
-
-    <main>
-      <section class="hero neon-cyan">
-        <div class="hero-top">
-          <span class="eyebrow">FREE TIME UNTIL BEDTIME</span>
-          <span class="live-dot">● TODAY</span>
-        </div>
-        <div class="big-time" id="freeTime">--h --m</div>
-        <div class="hero-foot">
-          <span>就寝目標 <strong id="bedtimeLabel">24:00</strong></span>
-          <span id="remainingLabel">残り時間を計算中</span>
-        </div>
-        <div class="progress-track"><div id="timeProgress"></div></div>
-      </section>
-
-      <section class="section-head">
-        <div>
-          <div class="eyebrow">BUILD YOUR EVENING</div>
-          <h2>今日のカード <span class="count" id="taskCount">0</span></h2>
-        </div>
-        <button class="text-btn" id="addTaskBtn">＋ 追加</button>
-      </section>
-
-      <section class="card-tray" id="cardTray" aria-label="タスクカード">
-        <div class="empty-state" id="emptyState">
-          <div class="empty-symbol">龍</div>
-          <strong>今夜の予定をつくろう</strong>
-          <p>タスクやお風呂、バッファをカードで追加してね。</p>
-        </div>
-      </section>
-
-      <div class="action-row">
-        <button class="primary-btn" id="buildBtn">✦ タイムラインを組む</button>
-        <button class="secondary-btn" id="suggestBtn">AIおすすめ <small>準備中</small></button>
-      </div>
-
-      <section class="timeline-section">
-        <div class="section-head timeline-heading">
-          <div>
-            <div class="eyebrow">THE FLOW OF TIME</div>
-            <h2>Tonight's Timeline</h2>
-          </div>
-          <span class="date-pill" id="todayLabel"></span>
-        </div>
-        <div class="timeline-card" id="timeline">
-          <div class="timeline-empty">カードを並べて「タイムラインを組む」を押すと、ここに一日の流れが表示されるよ。</div>
-        </div>
-      </section>
-
-      <section class="section-head goals-head">
-        <div>
-          <div class="eyebrow">SOMEDAY, LITTLE BY LITTLE</div>
-          <h2>やりたいこと</h2>
-        </div>
-        <button class="text-btn" id="addGoalBtn">＋ 目標</button>
-      </section>
-      <section class="goal-preview" id="goalPreview">
-        <p class="muted">長期目標はノルマにせず、やりたいときに少しずつ。</p>
-      </section>
-    </main>
-
-    <nav class="bottom-nav">
-      <span class="nav-active">◈ 今日</span>
-      <span>◇ やりたいこと</span>
-      <span>☾ 記録</span>
-    </nav>
-  </div>
-
-  <dialog id="taskDialog">
-    <form method="dialog" id="taskForm">
-      <div class="dialog-head"><div><div class="eyebrow">NEW TASK CARD</div><h3>カードを追加</h3></div><button class="close-btn" value="cancel" aria-label="閉じる">×</button></div>
-      <label>カード名<input id="taskName" required maxlength="40" placeholder="例：夕食、洗濯、英語"></label>
-      <div class="form-grid">
-        <label>所要時間（分）<input id="taskDuration" type="number" min="1" max="600" value="30" required></label>
-        <label>カードの種類<select id="taskType"><option value="daily">日常タスク</option><option value="life">生活習慣</option><option value="buffer">バッファ</option><option value="free">自由時間</option><option value="goal">長期目標</option></select></label>
-      </div>
-      <label class="check-label"><input id="taskFixed" type="checkbox"> 開始時刻を指定する</label>
-      <label id="fixedTimeWrap" class="hidden">開始時刻<input id="taskStart" type="time" value="20:00"></label>
-      <div class="dialog-actions"><button class="secondary-btn" value="cancel">キャンセル</button><button class="primary-btn" id="saveTaskBtn" value="default">追加する</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="settingsDialog">
-    <form method="dialog" id="settingsForm">
-      <div class="dialog-head"><div><div class="eyebrow">YOUR DAILY RHYTHM</div><h3>生活時間の設定</h3></div><button class="close-btn" value="cancel">×</button></div>
-      <label>普段の帰宅・自由時間開始<input id="dayStart" type="time" value="19:30"></label>
-      <label>基本の就寝時刻<input id="bedtime" type="time" value="00:00"></label>
-      <p class="muted small">特別な日には、その日だけの就寝時刻に変更できるようにする予定です。</p>
-      <div class="dialog-actions"><button class="secondary-btn" value="cancel">閉じる</button><button class="primary-btn" id="saveSettingsBtn" value="default">保存</button></div>
-    </form>
-  </dialog>
-
-  <dialog id="goalDialog">
-    <form method="dialog" id="goalForm">
-      <div class="dialog-head"><div><div class="eyebrow">LITTLE BY LITTLE</div><h3>やりたいことを追加</h3></div><button class="close-btn" value="cancel">×</button></div>
-      <label>目標<input id="goalName" required maxlength="60" placeholder="例：英語を話せるようになりたい"></label>
-      <label>最初の小さな一歩（任意）<input id="goalStep" maxlength="60" placeholder="例：単語を5個覚える"></label>
-      <div class="dialog-actions"><button class="secondary-btn" value="cancel">キャンセル</button><button class="primary-btn" id="saveGoalBtn" value="default">保存</button></div>
-    </form>
-  </dialog>
-
-  <div class="toast" id="toast" role="status"></div>
-  <script src="app.js"></script>
-</body>
-</html>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090910"><title>NEON CITY</title><link rel="manifest" href="manifest.webmanifest">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700;800&display=swap');
+:root{color-scheme:dark;--bg:#090910;--panel:#15141e;--txt:#f6eff8;--muted:#a69bad;--cyan:#55e8f5;--pink:#ff70b8;--gold:#f5c65c;--purple:#b695ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#282039,#10101a 45%,#090910 80%);color:var(--txt);font-family:'Noto Sans JP',sans-serif}.wrap{max-width:680px;margin:auto;padding:env(safe-area-inset-top) 17px 95px}.top{display:flex;justify-content:space-between;align-items:center;padding:22px 2px}.eyebrow{font:10px 'DM Mono';letter-spacing:.15em;color:#a99bb5}h1{font-size:24px;letter-spacing:.08em;margin:4px 0}h1 span{color:var(--cyan);text-shadow:0 0 12px #55e8f555}.icon,.btn{border:1px solid #55475f;background:#191722;color:var(--txt);border-radius:11px;padding:10px}.hero,.panel,.theme{background:#15141e;border:1px solid #3c3a4a;border-radius:17px;padding:16px;margin:12px 0}.hero{border-color:#55e8f588;box-shadow:0 0 17px #55e8f511}.heroTop,.head,.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.big{font:500 48px 'DM Mono';margin:12px 0;color:white;text-shadow:0 0 12px #55e8f566}.hero small,.muted{color:var(--muted);font-size:11px}.bar{height:4px;background:#393341;border-radius:9px;margin-top:12px;overflow:hidden}.bar i{display:block;height:100%;background:var(--cyan)}h2{font-size:19px;margin:5px 0}.head{margin:27px 2px 12px}.link{border:0;background:none;color:var(--cyan);font-weight:700}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.task{border:1px solid var(--c);background:#171620;border-radius:13px;padding:12px;min-height:120px;position:relative}.task .kind{font:9px 'DM Mono';color:var(--c);letter-spacing:.1em}.task strong{display:block;margin:9px 0 5px}.task small{color:#b8adbf}.task button{margin-top:8px;border:1px solid var(--c);background:transparent;color:var(--c);border-radius:7px;padding:5px 8px}.tools{position:absolute;right:7px;top:6px}.tools button{margin:0;padding:3px 6px;border:0}.actions{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;margin-top:12px}.primary{background:linear-gradient(110deg,#16414a,#30203c);border:1px solid var(--cyan);color:#eaffff;border-radius:11px;padding:12px;font-weight:700}.secondary{background:#191722;border:1px solid #655071;color:#eadcf4;border-radius:11px;padding:12px}.timeline{background:#12121b;border:1px solid #393344;border-radius:15px;padding:14px}.event{display:grid;grid-template-columns:49px 12px 1fr;gap:8px;min-height:57px}.time{font:10px 'DM Mono';color:#b9adbf;text-align:right;padding-top:3px}.rail{display:flex;justify-content:center;position:relative}.rail:before{content:"";position:absolute;top:5px;bottom:-5px;width:2px;background:#393344}.dot{width:9px;height:9px;background:var(--c);border-radius:50%;z-index:1;margin-top:4px;box-shadow:0 0 8px var(--c)}.event strong{font-size:12px}.meta{font:10px 'DM Mono';color:#9f95a8;margin-top:4px}.moves button{padding:3px 6px;border:1px solid #51465c;background:#201b28;color:#ddd;border-radius:5px}.page{display:none}.page.active{display:block}.pageTitle{margin:10px 2px 17px}.pageTitle h2{font-size:24px}.theme{border-color:var(--c)}.theme h3{margin:4px 0 12px}.project{width:100%;text-align:left;background:#ffffff08;border:1px solid #383140;border-radius:10px;color:var(--txt);padding:11px;margin:5px 0}.project small{display:block;color:var(--muted);margin-top:4px}.add{width:100%;background:none;border:1px dashed var(--c);color:var(--c);border-radius:9px;padding:10px;margin-top:8px}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(680px,100%);display:flex;justify-content:space-around;background:#0c0b13ed;border-top:1px solid #312b3b;padding:10px 10px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(14px)}.nav button{background:none;border:0;color:#978ca0;padding:4px 24px}.nav .sel{color:var(--cyan)}dialog{width:min(440px,calc(100% - 24px));max-height:85vh;overflow:auto;background:#171520;color:var(--txt);border:1px solid #70547b;border-radius:17px;padding:19px}dialog::backdrop{background:#05040bdc;backdrop-filter:blur(4px)}label{display:block;color:#c9bdce;font-size:12px;margin:12px 0}input,textarea,select{width:100%;padding:11px;margin-top:6px;background:#0e0d15;color:white;border:1px solid #494052;border-radius:9px;font:14px 'Noto Sans JP'}input[type=checkbox]{width:auto}.dlghead{display:flex;justify-content:space-between;align-items:center}.dlghead h3{margin:5px 0 12px}.sub{display:flex;gap:8px;align-items:center;border-bottom:1px solid #342d3a;padding:9px 0;font-size:12px}.sub span{flex:1}.suggest{border:1px solid #594663;border-radius:10px;padding:10px;margin-top:10px}.suggest label{display:flex;gap:8px;align-items:center}.toast{position:fixed;bottom:85px;left:50%;transform:translateX(-50%);background:#282133;border:1px solid var(--cyan);padding:10px 14px;border-radius:10px;font-size:12px;display:none}.empty{border:1px dashed #51465c;border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:12px}
+</style></head><body><div class="wrap">
+<header class="top"><div><div class="eyebrow">YOUR DAILY LIFE PLANNER</div><h1>NEON <span>CITY</span> ✦</h1></div><button class="icon" id="settings">⚙</button></header>
+<section class="page active" id="today"><div class="hero"><div class="heroTop"><span class="eyebrow">FREE TIME UNTIL BEDTIME</span><span style="color:var(--pink)">● TODAY</span></div><div class="big" id="free">--h --m</div><div class="row"><small>就寝目標 <b id="bedLabel">24:00</b></small><small id="remaining"></small></div><div class="bar"><i id="bar" style="width:0"></i></div></div>
+<div class="head"><div><div class="eyebrow">BUILD YOUR EVENING</div><h2>今日のカード <small id="count"></small></h2></div><button class="link" id="addTask">＋ 追加</button></div><div class="cards" id="cards"></div>
+<div class="actions"><button class="primary" id="build">✦ タイムラインを組む</button><button class="secondary" id="aiSuggest">AIおすすめ</button></div>
+<div class="head"><div><div class="eyebrow">THE FLOW OF TIME</div><h2>Tonight's Timeline</h2></div><small id="date"></small></div><div class="timeline" id="timeline"><div class="empty">カードを並べてタイムラインを組もう。</div></div></section>
+<section class="page" id="goals"><div class="pageTitle"><div class="eyebrow">YOUR BIG PICTURE</div><h2>人生のテーマ</h2><p class="muted">大きな目的をプロジェクトに分けて、小さな行動をストック。毎日のノルマにはしないよ。</p></div><button class="primary" id="addTheme">＋ 大きなテーマを追加</button><div id="themeList"></div></section>
+<section class="page" id="records"><div class="pageTitle"><div class="eyebrow">YOUR JOURNEY</div><h2>成長の記録</h2><p class="muted">完了した行動を積み重ねていこう。</p></div><div class="panel" id="summary"></div><div class="panel"><h3>最近の達成</h3><div id="recent"></div></div></section>
+</div><nav class="nav"><button class="sel" data-page="today">◈<br>今日</button><button data-page="goals">◇<br>目標</button><button data-page="records">☾<br>記録</button></nav>
+<dialog id="taskDlg"><div class="dlghead"><h3>タスクカードを追加</h3><button class="icon" data-close="taskDlg">×</button></div><label>カード名<input id="tName" placeholder="例：夕食、英語"></label><label>所要時間（分）<input id="tDur" type="number" value="30" min="1"></label><label>種類<select id="tType"><option value="daily">日常タスク</option><option value="life">生活習慣</option><option value="buffer">バッファ</option><option value="free">自由時間</option><option value="goal">長期目標</option></select></label><label><input id="tFixed" type="checkbox"> 開始時刻を指定</label><label id="fixedWrap" style="display:none">開始時刻<input id="tStart" type="time" value="20:00"></label><button class="primary" id="saveTask">保存</button></dialog>
+<dialog id="settingsDlg"><div class="dlghead"><h3>生活時間</h3><button class="icon" data-close="settingsDlg">×</button></div><label>一日の開始時刻<input id="dayStart" type="time" value="19:30"></label><label>就寝時刻<input id="bed" type="time" value="00:00"></label><button class="primary" id="saveSettings">保存</button></dialog>
+<dialog id="themeDlg"><div class="dlghead"><h3>大きなテーマ</h3><button class="icon" data-close="themeDlg">×</button></div><label>テーマ名<input id="themeName" placeholder="健康・美容、お金・キャリア、恋愛"></label><button class="primary" id="saveTheme">追加</button></dialog>
+<dialog id="projectDlg"><div class="dlghead"><h3>プロジェクト</h3><button class="icon" data-close="projectDlg">×</button></div><label>プロジェクト名<input id="projectName" placeholder="例：資産の棚卸し、副業を始める"></label><label>達成したい状態<textarea id="outcome" rows="2" placeholder="どうなったら達成？（任意）"></textarea></label><button class="primary" id="saveProject">自動分解案を作る</button></dialog>
+<dialog id="detailDlg"><div class="dlghead"><h3 id="detailName"></h3><button class="icon" data-close="detailDlg">×</button></div><p class="muted" id="detailOutcome"></p><div id="subtasks"></div><div class="row"><input id="newSub" placeholder="小タスクを追加"><button class="primary" id="addSub">＋</button></div><button class="secondary" id="suggestSub" style="width:100%;margin-top:10px">✦ 自動分解案を表示</button><div class="suggest" id="suggestions" hidden></div></dialog><div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id), colors={daily:"#55e8f5",life:"#b695ff",buffer:"#f5c65c",free:"#f5c65c",goal:"#ff70b8"}, labels={daily:"DAILY TASK",life:"LIFE ROUTINE",buffer:"BUFFER",free:"FREE TIME",goal:"LONG-TERM GOAL"};
+const fresh={tasks:[],themes:[],settings:{start:"19:30",bed:"00:00"},history:[]};let S;try{const old=JSON.parse(localStorage.getItem("neonCityState")||"{}");S={...fresh,...old,settings:{...fresh.settings,...old.settings}};S.settings.start=old.settings?.start||old.settings?.dayStart||fresh.settings.start;S.settings.bed=old.settings?.bed||old.settings?.bedtime||fresh.settings.bed;S.themes??=[];S.history??=[];if(!S.themes.length&&old.goals?.length){S.themes=[{id:Math.random().toString(36).slice(2),name:"その他・やってみたいこと",projects:[{id:Math.random().toString(36).slice(2),name:"以前のやりたいこと",outcome:"",tasks:old.goals.map(g=>({id:Math.random().toString(36).slice(2),name:g.step||g.name,done:false}))}]}]}}catch{S=structuredClone(fresh)}let currentProject=null,editId=null,built=false;
+const save=()=>localStorage.setItem("neonCityState",JSON.stringify(S)),uid=()=>Math.random().toString(36).slice(2),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),m=t=>{let [h,n]=t.split(":").map(Number);return h*60+n},clock=n=>{n=(n%1440+1440)%1440;return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0")},duration=n=>n>=60?`${Math.floor(n/60)}時間${n%60?`${n%60}分`:""}`:`${n}分`;
+function toast(s){$("toast").textContent=s;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2000)}
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===b.dataset.page));document.querySelectorAll("[data-page]").forEach(x=>x.classList.toggle("sel",x===b));if(b.dataset.page==="records")renderRecords();scrollTo(0,0)});
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());
+$("addTask").onclick=()=>{editId=null;$("tName").value="";$("tDur").value=30;$("taskDlg").showModal()};
+$("tFixed").onchange=()=>$("fixedWrap").style.display=$("tFixed").checked?"block":"none";
+$("saveTask").onclick=()=>{let name=$("tName").value.trim();if(!name)return;let t={id:editId||uid(),name,duration:+$("tDur").value||30,type:$("tType").value,fixed:$("tFixed").checked,start:$("tStart").value,done:false};if(editId)S.tasks=S.tasks.map(x=>x.id===editId?t:x);else S.tasks.push(t);save();$("taskDlg").close();render()};
+$("settings").onclick=()=>{$("dayStart").value=S.settings.start;$("bed").value=S.settings.bed;$("settingsDlg").showModal()};
+$("saveSettings").onclick=()=>{S.settings.start=$("dayStart").value;S.settings.bed=$("bed").value;save();$("settingsDlg").close();updateHero();if(built)renderTimeline()};
+$("build").onclick=()=>{built=true;renderTimeline();toast("タイムラインを組んだよ ✦")};$("aiSuggest").onclick=()=>toast("AIおすすめは後から接続する予定だよ");
+function render(){ $("count").textContent=S.tasks.length; $("cards").innerHTML=S.tasks.map(t=>`<article class="task" style="--c:${colors[t.type]}"><div class="tools"><button onclick="editTask('${t.id}')">✎</button><button onclick="deleteTask('${t.id}')">×</button></div><div class="kind">${labels[t.type]}</div><strong>${esc(t.name)}</strong><small>${t.duration} MIN${t.fixed?" · "+t.start:""}</small><br><button onclick="toggleTask('${t.id}')">${t.done?"✓ DONE":"○ 完了"}</button></article>`).join("")||'<div class="empty">今夜の予定をつくろう。タスクやお風呂、バッファを追加してね。</div>';updateHero();renderThemes();$("date").textContent=new Date().toLocaleDateString("ja-JP",{month:"2-digit",day:"2-digit",weekday:"short"});if(built)renderTimeline()}
+window.editTask=id=>{let t=S.tasks.find(x=>x.id===id);if(!t)return;editId=id;$("tName").value=t.name;$("tDur").value=t.duration;$("tType").value=t.type;$("tFixed").checked=t.fixed;$("tStart").value=t.start;$("fixedWrap").style.display=t.fixed?"block":"none";$("taskDlg").showModal()};
+window.deleteTask=id=>{S.tasks=S.tasks.filter(t=>t.id!==id);save();render()};window.toggleTask=id=>{let t=S.tasks.find(x=>x.id===id);t.done=!t.done;if(t.done)S.history.unshift({name:t.name,date:new Date().toISOString()});save();render()};
+function updateHero(){let now=new Date(),end=new Date(now),bed=m(S.settings.bed);end.setHours(Math.floor(bed/60),bed%60,0,0);if(end<=now)end.setDate(end.getDate()+1);let rem=Math.max(0,Math.floor((end-now)/60000)),planned=S.tasks.filter(t=>!t.done).reduce((a,t)=>a+t.duration,0),free=Math.max(0,rem-planned);$("free").textContent=`${Math.floor(free/60)}h ${String(free%60).padStart(2,"0")}m`;$("bedLabel").textContent=clock(bed);$("remaining").textContent=`就寝まで ${duration(rem)}`;$("bar").style.width=Math.min(100,(rem/300)*100)+"%"}
+function renderTimeline(){let cur=m(S.settings.start),bed=m(S.settings.bed);if(bed<=cur)bed+=1440;let list=[];S.tasks.forEach(t=>{let st=cur;if(t.fixed){st=m(t.start);if(st<cur&&st< m(S.settings.start))st+=1440}if(st>cur)list.push({name:"空き時間",start:cur,end:st,type:"free"});list.push({...t,start:st,end:st+t.duration});cur=st+t.duration});if(cur<bed)list.push({name:"自由時間",start:cur,end:bed,type:"free"});$("timeline").innerHTML=list.map((x,i)=>`<div class="event" style="--c:${colors[x.type]||colors.daily}"><div class="time">${clock(x.start)}</div><div class="rail"><i class="dot"></i></div><div><div class="row"><strong>${esc(x.name)}</strong>${x.id?`<span class="moves"><button onclick="moveTask('${x.id}',-1)">↑</button><button onclick="moveTask('${x.id}',1)">↓</button><button onclick="editTask('${x.id}')">✎</button></span>`:""}</div><div class="meta">${clock(x.start)} – ${clock(x.end)} · ${duration(x.end-x.start)}</div></div></div>`).join("")+`<div class="event"><div class="time">${clock(Math.max(cur,bed))}</div><div class="rail"><i class="dot" style="background:var(--pink)"></i></div><div><strong style="color:var(--pink)">☾ BEDTIME</strong><div class="meta">就寝目標 ${clock(bed)}</div></div></div>`}
+window.moveTask=(id,d)=>{let i=S.tasks.findIndex(t=>t.id===id),j=i+d;if(j<0||j>=S.tasks.length)return;[S.tasks[i],S.tasks[j]]=[S.tasks[j],S.tasks[i]];save();render();built=true;renderTimeline()};
+$("addTheme").onclick=()=>$("themeDlg").showModal();$("saveTheme").onclick=()=>{let name=$("themeName").value.trim();if(!name)return;S.themes.push({id:uid(),name,projects:[]});$("themeName").value="";save();$("themeDlg").close();renderThemes()};
+function renderThemes(){$("themeList").innerHTML=S.themes.map((th,i)=>{let ps=th.projects||[],all=ps.flatMap(p=>p.tasks||[]),done=all.filter(t=>t.done).length,pct=all.length?Math.round(done/all.length*100):0,c=["#55e8f5","#ff70b8","#b695ff","#f5c65c"][i%4];return `<article class="theme" style="--c:${c}"><div class="row"><div><div class="eyebrow">LIFE AREA ${i+1}</div><h3>${esc(th.name)}</h3></div><b style="color:${c}">${pct}%</b></div><div class="bar"><i style="width:${pct}%;background:${c}"></i></div><small class="muted">${done}/${all.length} 小タスク完了 · ${ps.length} プロジェクト</small>${ps.map(p=>{let d=p.tasks.filter(t=>t.done).length;return `<button class="project" onclick="openProject('${p.id}')"><b>${esc(p.name)}</b><small>${d}/${p.tasks.length} 完了 · ${esc(p.outcome||"")}</small></button>`}).join("")}<button class="add" onclick="newProject('${th.id}')">＋ このテーマにプロジェクトを追加</button></article>`}).join("")||'<div class="empty">健康・美容、お金・キャリア、恋愛など、大きなテーマを追加しよう。</div>'}
+window.newProject=id=>{currentProject=id;$("projectName").value="";$("outcome").value="";$("projectDlg").showModal()};
+$("saveProject").onclick=()=>{let th=S.themes.find(t=>t.id===currentProject),name=$("projectName").value.trim();if(!th||!name)return;let p={id:uid(),name,outcome:$("outcome").value.trim(),tasks:[]};th.projects.push(p);save();$("projectDlg").close();renderThemes();openProject(p.id)};
+function openProject(id){currentProject=id;let p=S.themes.flatMap(t=>t.projects).find(x=>x.id===id);if(!p)return;$("detailName").textContent=p.name;$("detailOutcome").textContent=p.outcome;$("suggestions").hidden=true;renderSubs();$("detailDlg").showModal()}
+window.openProject=openProject;
+function renderSubs(){let p=S.themes.flatMap(t=>t.projects).find(x=>x.id===currentProject);$("subtasks").innerHTML=p.tasks.map(t=>`<div class="sub"><input type="checkbox" ${t.done?"checked":""} onchange="checkSub('${t.id}',this.checked)"><span style="${t.done?"text-decoration:line-through;opacity:.5":""}">${esc(t.name)}</span><button class="icon" onclick="removeSub('${t.id}')">×</button></div>`).join("")||'<p class="muted">小タスクはまだありません。自動分解案を作ってみよう。</p>'}
+window.checkSub=(id,v)=>{let p=S.themes.flatMap(t=>t.projects).find(x=>x.id===currentProject),t=p.tasks.find(x=>x.id===id);t.done=v;if(v)S.history.unshift({name:t.name,date:new Date().toISOString()});save();renderSubs();renderThemes()};
+window.removeSub=id=>{let p=S.themes.flatMap(t=>t.projects).find(x=>x.id===currentProject);p.tasks=p.tasks.filter(t=>t.id!==id);save();renderSubs();renderThemes()};
+$("addSub").onclick=()=>{let p=S.themes.flatMap(t=>t.projects).find(x=>x.id===currentProject),name=$("newSub").value.trim();if(!name)return;p.tasks.push({id:uid(),name,done:false});$("newSub").value="";save();renderSubs();renderThemes()};
+function autoIdeas(name){if(/資産|お金|家計|貯金|投資/.test(name))return["銀行・証券・保険の情報を一覧にする","現在の資産残高を確認する","毎月の収支を確認する","見直したい項目を1つ選ぶ"];if(/副業|仕事|キャリア|転職|年収/.test(name))return["今あるスキル・経験を書き出す","興味のある分野を3つ調べる","案件や年収の相場を確認する","最初に試す行動を決める"];if(/ダイエット|健康|筋トレ|美容/.test(name))return["現在の状態と目指したい状態を整理する","無理なく続けられる習慣を1つ決める","必要な環境を整える","1週間試して振り返る"];if(/恋愛|出会い|パートナー/.test(name))return["自分が大切にしたい条件を書き出す","出会い方の選択肢を整理する","無理のない行動を1つ決める","経験を振り返って希望を更新する"];return["達成したい状態を具体的に書く","現在の状況・足りない情報を整理する","必要なことを調べて選択肢を比較する","最初にできる小さな行動を試す"]}
+$("suggestSub").onclick=()=>{let p=S.themes.flatMap(t=>t.projects).find(x=>x.id===currentProject),ideas=autoIdeas(p.name);$("suggestions").hidden=false;$("suggestions").innerHTML='<small class="muted">AI接続前の仮の自動分解案。必要なものを選んで追加してね。</small>'+ideas.map((x,i)=>`<label><input type="checkbox" data-idea="${i}" checked> ${esc(x)}</label>`).join("")+'<button class="primary" id="acceptIdeas">選んだタスクを追加</button>';$("acceptIdeas").onclick=()=>{document.querySelectorAll("[data-idea]:checked").forEach(c=>p.tasks.push({id:uid(),name:ideas[+c.dataset.idea],done:false}));save();renderSubs();renderThemes();$("suggestions").hidden=true;toast("小タスクを追加したよ")}};
+function renderRecords(){let ps=S.themes.flatMap(t=>t.projects),tasks=ps.flatMap(p=>p.tasks),done=tasks.filter(t=>t.done).length;$("summary").innerHTML=`<div class="row"><span>小タスク完了</span><b>${done}</b></div><div class="row"><span>プロジェクト数</span><b>${ps.length}</b></div><div class="row"><span>完了した記録</span><b>${S.history.length}</b></div>`;$("recent").innerHTML=S.history.slice(0,15).map(x=>`<div class="sub"><span>${esc(x.name)}</span><small>${new Date(x.date).toLocaleDateString("ja-JP")}</small></div>`).join("")||'<p class="muted">完了したタスクがここに積み重なっていくよ。</p>'}
+render();setInterval(updateHero,30000);if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script></body></html>

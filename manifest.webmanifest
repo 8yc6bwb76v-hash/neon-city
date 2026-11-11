@@ -1,10 +1,9 @@
 {
   "name": "NEON CITY",
-  "short_name": "NEON CITY",
+  "short_name": "NEON",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#090910",
   "theme_color": "#090910",
-  "description": "今日の時間を見える化する生活プランナー",
-  "icons": []
+  "description": "今日の時間を見える化する生活プランナー"
 }
