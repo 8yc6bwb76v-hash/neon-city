@@ -60,26 +60,33 @@ window.editTask=id=>{let t=S.tasks.find(x=>x.id===id);if(!t)return;editId=id;$("
 window.deleteTask=id=>{S.tasks=S.tasks.filter(t=>t.id!==id);save();render()};
 window.toggleTask=id=>{let t=S.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;t.doneAt=t.done?new Date().toISOString():null;if(t.sourceSubtaskId){let sub=S.themes.flatMap(th=>th.projects||[]).flatMap(pr=>pr.tasks||[]).find(x=>x.id===t.sourceSubtaskId);if(sub){sub.done=t.done;sub.completedAt=t.done?t.doneAt:null}}save();render();if(document.querySelector('[data-page="records"].sel'))renderRecords()};
 function updateHero(){let now=new Date(),end=new Date(now),bed=m(S.settings.bed);end.setHours(Math.floor(bed/60),bed%60,0,0);if(end<=now)end.setDate(end.getDate()+1);let rem=Math.max(0,Math.floor((end-now)/60000)),planned=S.tasks.filter(t=>!t.done).reduce((a,t)=>a+t.duration,0),free=Math.max(0,rem-planned);$("untilBed").textContent=`${Math.floor(rem/60)}h ${String(rem%60).padStart(2,"0")}m`;$("bedLabel").textContent=clock(bed);$("remaining").textContent=`自由時間 ${Math.floor(free/60)}h ${String(free%60).padStart(2,"0")}m`;$("bar").style.width=Math.min(100,(rem/300)*100)+"%"}
+function planningWindow(){
+ const now=new Date(),nowMin=now.getHours()*60+now.getMinutes();
+ let start=m(S.settings.start),bed=m(S.settings.bed),overnight=bed<=start;
+ if(overnight)bed+=1440;
+ // Early morning belongs to yesterday only when the configured bedtime crosses midnight.
+ if(overnight&&nowMin<m(S.settings.bed)){start-=1440;bed-=1440}
+ // After bedtime, plan the next evening instead of returning a negative duration.
+ else if(nowMin>=bed){start+=1440;bed+=1440}
+ return {start,bed,nowMin,available:Math.max(0,bed-Math.max(start,nowMin))};
+}
 let pendingPlan=null;
 function startTimelineBuild(){
- const now=new Date(),start=m(S.settings.start);let bed=m(S.settings.bed);if(bed<=start)bed+=1440;
- let nowMin=now.getHours()*60+now.getMinutes();if(nowMin<start)nowMin+=1440;if(nowMin>=bed&&nowMin-bed<720)bed+=1440;
- const available=Math.max(0,bed-Math.max(start,nowMin));
+ const {start,bed,nowMin,available}=planningWindow();
  // Fixed-time tasks first, then the existing card order. The user can freely change the selection.
  const open=S.tasks.filter(t=>!t.done);
  let cursor=Math.max(start,nowMin),selected=new Set(),overflow=[];
  open.forEach(t=>{let at=cursor;if(t.fixed){let fixed=m(t.start);while(fixed<start)fixed+=1440;if(fixed>at)at=fixed}let end=at+(+t.duration||15);if(at<bed&&end<=bed){selected.add(t.id);cursor=end}else overflow.push(t.id)});
  pendingPlan={bed,start,nowMin,selected,available};
  if(!overflow.length){applySelectedPlan([...selected]);return}
- $("priorityIntro").textContent=`就寝まであと${duration(available)}。今夜のカードを選んでね。最初は入るものにチェックを入れてあるよ。`;
+ $("priorityIntro").textContent=`予定を入れられる時間は${duration(available)}。今夜のカードを選んでね。最初は入るものにチェックを入れてあるよ。`;
  $("priorityChoices").innerHTML=open.map((t,i)=>`<label class="priority-choice"><input type="checkbox" data-priority-task="${t.id}" ${selected.has(t.id)?"checked":""}><span><b>${esc(t.name)}</b><small>${t.duration}分${t.fixed?" · 指定 "+t.start:""}${t.type==="goal"?" · 目標タスク":""}</small></span><em>${t.fixed?"⏰":t.type==="goal"?"✦":"◇"}</em></label>`).join("");
- const update=()=>{let chosen=[...document.querySelectorAll("[data-priority-task]:checked")],mins=chosen.reduce((sum,c)=>sum+(+S.tasks.find(t=>t.id===c.dataset.priorityTask)?.duration||0),0);$("priorityTotal").textContent=`選択中 ${chosen.length}件 · 合計 ${duration(mins)} ／ 就寝まで ${duration(available)}`;$("priorityTotal").style.color=mins>available?"#ff70b8":"#55e8f5";$("confirmPriority").disabled=mins>available};
+ const update=()=>{let chosen=[...document.querySelectorAll("[data-priority-task]:checked")],mins=chosen.reduce((sum,c)=>sum+(+S.tasks.find(t=>t.id===c.dataset.priorityTask)?.duration||0),0);$("priorityTotal").textContent=`選択中 ${chosen.length}件 · 合計 ${duration(mins)} ／ 予定に使える時間 ${duration(available)}`;$("priorityTotal").style.color=mins>available?"#ff70b8":"#55e8f5";$("confirmPriority").disabled=mins>available};
  $("priorityChoices").querySelectorAll("input").forEach(c=>c.addEventListener("change",update));update();$("priorityDlg").showModal();
 }
 function applySelectedPlan(ids){
  const chosen=ids.map(id=>S.tasks.find(t=>t.id===id)).filter(Boolean);
- const start=m(S.settings.start);let bed=m(S.settings.bed);if(bed<=start)bed+=1440;
- let now=new Date(),nowMin=now.getHours()*60+now.getMinutes();if(nowMin<start)nowMin+=1440;if(nowMin>=bed&&nowMin-bed<720)bed+=1440;
+ const {start,bed,nowMin}=planningWindow();
  let cur=Math.max(start,nowMin),items=[],overflow=[];
  chosen.forEach(t=>{let at=cur;if(t.fixed){let fixed=m(t.start);while(fixed<start)fixed+=1440;if(fixed>at)at=fixed}let end=at+(+t.duration||15);if(at>=bed||end>bed){overflow.push(t.id);return}if(at>cur)items.push({name:"空き時間",start:cur,end:at,type:"free",system:true});items.push({id:t.id,start:at,end});cur=end});
  if(cur<bed)items.push({name:"自由時間",start:cur,end:bed,type:"free",system:true});
@@ -87,8 +94,7 @@ function applySelectedPlan(ids){
 }
 $("confirmPriority").onclick=()=>{if(!pendingPlan)return;let ids=[...document.querySelectorAll("[data-priority-task]:checked")].map(c=>c.dataset.priorityTask);$("priorityDlg").close();applySelectedPlan(ids);pendingPlan=null};
 function renderTimeline(rebuild=false){
-let dayStart=m(S.settings.start),bed=m(S.settings.bed);if(bed<=dayStart)bed+=1440;
-let now=new Date(),nowMin=now.getHours()*60+now.getMinutes();if(nowMin<dayStart)nowMin+=1440;if(nowMin>=bed&&nowMin-bed<720)bed+=1440;
+let {start:dayStart,bed,nowMin}=planningWindow();
 if(!Array.isArray(S.timeline)){
  S.timeline=[];S.timelineOverflow=[];
 }
